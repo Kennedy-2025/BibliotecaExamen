@@ -1,0 +1,168 @@
+/* ===========================
+   Estilos globales
+=========================== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f6f8fa;
+  color: #333;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ===========================
+   Contenedores
+=========================== */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ===========================
+   Header
+=========================== */
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: #1e40af;
+}
+
+.subtitle {
+  color: #555;
+  font-size: 1.1rem;
+}
+
+/* ===========================
+   Tarjetas
+=========================== */
+.card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+/* ===========================
+   Formularios
+=========================== */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button#save-btn {
+  background-color: #2563eb;
+  color: white;
+}
+
+button.secondary {
+  background-color: #e5e7eb;
+  color: #333;
+}
+
+button.btn-danger {
+  background-color: #dc2626;
+  color: #fff;
+}
+
+/* ===========================
+   Tabla de libros
+=========================== */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: #f9fafb;
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ===========================
+   Footer
+=========================== */
+.footer {
+  text-align: center;
+  color: #777;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+}
+
+/* ===========================
+   Efectos visuales
+=========================== */
+.highlight {
+  background-color: #dcfce7;
+  transition: background-color 1s ease;
+}

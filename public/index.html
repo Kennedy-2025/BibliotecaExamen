@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca - CRUD de Libros</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="container">
+    <h1>📚 Biblioteca</h1>
+    <p class="subtitle">CRUD de libros con Node.js, Express y MySQL</p>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Agregar / Editar Libro</h2>
+      <form id="book-form">
+        <input type="hidden" id="book-id" />
+        <div class="grid">
+          <div class="field">
+            <label for="titulo">Título</label>
+            <input id="titulo" name="titulo" placeholder="El Quijote" required />
+          </div>
+          <div class="field">
+            <label for="autorId">Autor</label>
+            <select id="autorId" name="autorId" required></select>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" id="save-btn">Guardar</button>
+          <button type="button" id="reset-btn" class="secondary">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="table-header">
+        <h2>Libros</h2>
+        <button id="reload-btn" class="secondary">Recargar</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Autor</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="books-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">Hecho para alumnos • Node + Express + MySQL</footer>
+
+  <script>
+    const API = "/libros";
+    const API_AUTORES = "/autores";
+
+    const tbody = document.getElementById("books-tbody");
+    const form = document.getElementById("book-form");
+    const inputId = document.getElementById("book-id");
+    const inputTitulo = document.getElementById("titulo");
+    const selectAutor = document.getElementById("autorId");
+    const btnReset = document.getElementById("reset-btn");
+    const btnReload = document.getElementById("reload-btn");
+
+    // Renderiza los libros en la tabla
+    function renderRows(books) {
+      tbody.innerHTML = "";
+      for (const b of books) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${b.id}</td>
+          <td>${b.titulo}</td>
+          <td data-autor-id="${b.autorId ?? ''}">${b.autorNombre ?? ""}</td>
+          <td>
+            <div class="row-actions">
+              <button data-id="${b.id}" class="edit-btn">Editar</button>
+              <button data-id="${b.id}" class="delete-btn">Eliminar</button>
+            </div>
+          </td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    // Carga los libros desde el backend
+    async function loadBooks() {
+      tbody.innerHTML = "<tr><td colspan='4'>Cargando...</td></tr>";
+      try {
+        const res = await fetch(API);
+        if (!res.ok) throw new Error("Error al obtener libros");
+        const data = await res.json();
+        renderRows(data);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan='4'>${err.message}</td></tr>`;
+      }
+    }
+
+    // Carga los autores en el select
+    async function loadAutores() {
+      selectAutor.disabled = true;
+      try {
+        const res = await fetch(API_AUTORES);
+        if (!res.ok) throw new Error("Error al obtener autores");
+        const autores = await res.json();
+
+        selectAutor.innerHTML = '<option value="">Seleccione un autor</option>';
+        for (const a of autores) {
+          const opt = document.createElement("option");
+          opt.value = a.id;
+          opt.textContent = a.nombre;
+          selectAutor.appendChild(opt);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("No se pudieron cargar los autores");
+      } finally {
+        selectAutor.disabled = false;
+      }
+    }
+
+    // Maneja clicks en botones Editar y Eliminar
+    tbody.addEventListener("click", async (e) => {
+      const t = e.target;
+      const row = t.closest("tr");
+      if (t.matches(".edit-btn")) {
+        inputId.value = t.dataset.id;
+        inputTitulo.value = row.children[1].textContent;
+        const autorId = row.children[2].dataset.autorId;
+        if (autorId) selectAutor.value = autorId;
+        inputTitulo.focus();
+      }
+      if (t.matches(".delete-btn")) {
+        const id = t.dataset.id;
+        if (!confirm("¿Eliminar este libro?")) return;
+        try {
+          const res = await fetch(`${API}/${id}`, { method: "DELETE" });
+          if (!res.ok) throw new Error("Error al eliminar libro");
+          await loadBooks();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+    });
+
+    // Maneja submit del formulario para crear o actualizar
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        titulo: inputTitulo.value.trim(),
+        autorId: Number(selectAutor.value),
+      };
+      const id = inputId.value;
+      const isEdit = Boolean(id);
+      try {
+        const res = await fetch(isEdit ? `${API}/${id}` : API, {
+          method: isEdit ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const { message } = await res.json().catch(() => ({ message: "Error" }));
+          throw new Error(message || "Ocurrió un error");
+        }
+        form.reset();
+        inputId.value = "";
+        await loadBooks();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // Botón limpiar
+    btnReset.addEventListener("click", () => {
+      form.reset();
+      inputId.value = "";
+    });
+
+    // Botón recargar
+    btnReload.addEventListener("click", loadBooks);
+
+    // Carga inicial
+    Promise.all([loadAutores(), loadBooks()]);
+  </script>
+</body>
+</html>
